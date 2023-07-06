@@ -2,60 +2,114 @@ const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 const buttons = $$(".button");
 const numberBtns = $$(".button--number");
-const resultDisplay = $("result-display");
-const inputDisplay = $("input-display");
+const operatorBtns = $$(".button_operator");
+const resultBtn = $(".button_result");
+const primaryDisplay = $(".primary-display");
+const secondaryDisplay = $(".secondary-display");
 
 const app = {
-    result: 0,
-    firstNumber: "",
-    secondNumber: "",
-    operator: {
-        isOn: false,
-        type: "",
-    },
+    log: ["", ""],
+    hasOperator: false,
 
-    buttonsHover: function () {
+    onBtnsHover: function () {
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].addEventListener("mousemove", (e) => {
-                let rect = buttons[i].getBoundingClientRect(),
-                    x = e.clientX - rect.left,
-                    y = e.clientY - rect.top;
-
-                buttons[i].style.setProperty("--mouse-x", `${x}px`);
-                buttons[i].style.setProperty("--mouse-y", `${y}px`);
+                this.addHoverFx(e, buttons[i]);
             });
         }
     },
 
-    registerNumber: function (number) {
-        this.operator.isOn == false ? (this.firstNumber += number) : (this.secondNumber += number);
-        console.log(this.firstNumber);
-        this.updateInput;
-    },
-
-    numberInput: function () {
+    onNumPress: function () {
         for (i of numberBtns) {
             i.addEventListener("click", (e) => {
-                this.registerNumber(e.target.value);
+                this.updateView(e.target.value);
             });
         }
+    },
+
+    onOperatorPress: function () {
+        for (j of operatorBtns) {
+            j.addEventListener("click", (e) => {
+                if (this.hasOperator) {
+                    this.getResult();
+                }
+                this.addOperator(e.target.value);
+            });
+        }
+    },
+
+    onEqualPress: function () {
+        resultBtn.addEventListener("click", () => {
+            this.getResult();
+            this.hasOperator = false;
+        });
     },
 
     addEvent: function () {
-        this.buttonsHover();
-        this.numberInput();
+        this.onBtnsHover();
+        this.onNumPress();
+        this.onEqualPress();
+        this.onOperatorPress();
     },
 
-    clear: function () {},
-    undo: function () {},
+    addOperator(value) {
+        switch (value) {
+            case "add":
+                this.updateView(" + ");
+                break;
 
-    add: function () {},
-    subtract: function () {},
-    multiply: function () {},
-    divide: function () {},
+            case "subtract":
+                this.updateView(" - ");
+                break;
 
-    updateResult: function () {},
-    updateInput: function () {},
+            case "multiply":
+                this.updateView(" * ");
+                break;
+
+            case "divide":
+                this.updateView(" / ");
+                break;
+        }
+        this.hasOperator = true;
+    },
+
+    addHoverFx: function (event, element) {
+        let rect = element.getBoundingClientRect(),
+            x = event.clientX - rect.left,
+            y = event.clientY - rect.top;
+
+        element.style.setProperty("--mouse-x", `${x}px`);
+        element.style.setProperty("--mouse-y", `${y}px`);
+    },
+
+    getResult: function () {
+        let firstNum = this.log[0].split(" ")[0];
+        let operator = this.log[0].split(" ")[1];
+        let secondNum = this.log[0].split(" ")[2];
+
+        this.log.unshift("");
+
+        let result;
+        switch (operator) {
+            case "+":
+                result = parseInt(firstNum) + parseInt(secondNum);
+            case "-":
+                result = parseInt(firstNum) - parseInt(secondNum);
+            case "*":
+                result = parseInt(firstNum) * parseInt(secondNum);
+            case "/":
+                result = parseInt(firstNum) / parseInt(secondNum);
+        }
+
+        this.updateView(`${result}`);
+    },
+
+    updateView: function (inputValue) {
+        this.log[0] += inputValue;
+
+        primaryDisplay.innerText = this.log[0];
+        secondaryDisplay.innerText = this.log[1];
+    },
 
     render: function () {
         this.addEvent();

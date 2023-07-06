@@ -39,10 +39,10 @@ main {
     text-align: right;
 }
 
-.input-display {
+.secondary-display {
     font-size: 2rem;
 }
-.result-display {
+.primary-display {
     font-size: 5rem;
     font-weight: bold;
 }
