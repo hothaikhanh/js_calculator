@@ -6,10 +6,16 @@ const operatorBtns = $$(".button_operator");
 const resultBtn = $(".button_result");
 const primaryDisplay = $(".primary-display");
 const secondaryDisplay = $(".secondary-display");
+const clearBtn = $(".button_clear");
+const signBtn = $(".button_sign");
 
 const app = {
     log: ["", ""],
     hasOperator: false,
+    showResult: false,
+    firstNum: "",
+    secondNum: "",
+    operator: "",
 
     onBtnsHover: function () {
         for (let i = 0; i < buttons.length; i++) {
@@ -22,6 +28,7 @@ const app = {
     onNumPress: function () {
         for (i of numberBtns) {
             i.addEventListener("click", (e) => {
+                if (this.showResult) this.log.unshift("");
                 this.updateView(e.target.value);
             });
         }
@@ -45,14 +52,30 @@ const app = {
         });
     },
 
+    onClearPress: function () {
+        clearBtn.addEventListener("click", () => {
+            this.clearAll();
+        });
+    },
+
+    onSignPress: function () {
+        signBtn.addEventListener("click", (e) => {
+            this.addSign();
+        });
+    },
+
     addEvent: function () {
         this.onBtnsHover();
         this.onNumPress();
         this.onEqualPress();
         this.onOperatorPress();
+        this.onClearPress();
+        this.onSignPress();
     },
 
     addOperator(value) {
+        this.hasOperator = true;
+        this.showResult = false;
         switch (value) {
             case "add":
                 this.updateView(" + ");
@@ -70,7 +93,6 @@ const app = {
                 this.updateView(" / ");
                 break;
         }
-        this.hasOperator = true;
     },
 
     addHoverFx: function (event, element) {
@@ -82,33 +104,79 @@ const app = {
         element.style.setProperty("--mouse-y", `${y}px`);
     },
 
-    getResult: function () {
-        let firstNum = this.log[0].split(" ")[0];
-        let operator = this.log[0].split(" ")[1];
-        let secondNum = this.log[0].split(" ")[2];
+    addSign: function () {
+        this.updateInput();
 
-        this.log.unshift("");
+        switch (true) {
+            case this.firstNum && !this.secondNum && !this.operator: //add the sign to the first number if only the first number is inputed
+                console.log("case 1");
+                this.log[0] = `-${this.firstNum}`;
+                break;
 
-        let result;
-        switch (operator) {
-            case "+":
-                result = parseInt(firstNum) + parseInt(secondNum);
-            case "-":
-                result = parseInt(firstNum) - parseInt(secondNum);
-            case "*":
-                result = parseInt(firstNum) * parseInt(secondNum);
-            case "/":
-                result = parseInt(firstNum) / parseInt(secondNum);
+            case !!this.secondNum:
+                console.log("case 2");
+                this.log[0] = `${this.firstNum} ${this.operator} -${this.secondNum}`;
+                break;
+
+            default:
+                console.log("default");
+                console.log(this.secondNum);
+                this.log[0] += "-";
+                break;
         }
-
-        this.updateView(`${result}`);
+        this.updateView();
     },
 
-    updateView: function (inputValue) {
-        this.log[0] += inputValue;
+    updateInput: function () {
+        this.firstNum = this.log[0].split(" ")[0];
+        this.operator = this.log[0].split(" ")[1];
+        this.secondNum = this.log[0].split(" ")[2];
+        console.log(
+            `Currently the first input is: ${this.firstNum}, the second input is: ${this.secondNum}, the operator is: ${this.operator}`
+        );
+    },
 
+    getResult: function () {
+        this.updateInput();
+
+        this.log.unshift("");
+        this.showResult = true;
+        console.log(this.firstNum, this.secondNum, this.operator);
+        let result;
+        if (this.secondNum) {
+            switch (this.operator) {
+                case "+":
+                    result = parseInt(this.firstNum) + parseInt(this.secondNum);
+                    break;
+                case "-":
+                    result = parseInt(this.firstNum) - parseInt(this.secondNum);
+                    break;
+                case "*":
+                    result = parseInt(this.firstNum) * parseInt(this.secondNum);
+                    break;
+                case "/":
+                    result = parseInt(this.firstNum) / parseInt(this.secondNum);
+                    break;
+            }
+            this.updateView(`${result}`);
+            return;
+        }
+
+        this.updateView(this.firstNum);
+    },
+
+    clearAll: function () {
+        this.log = ["", ""];
+        this.hasOperator = false;
+        this.showResult = false;
+        this.updateView("");
+    },
+
+    updateView: function (newValue) {
+        if (newValue) this.log[0] += newValue;
         primaryDisplay.innerText = this.log[0];
         secondaryDisplay.innerText = this.log[1];
+        console.log(this.log);
     },
 
     render: function () {
