@@ -21,7 +21,7 @@ main {
     background-color: var(--primary-color);
     border-radius: 25px;
     aspect-ratio: 4/ 7;
-    height: 800px;
+    height: 95%;
     display: flex;
     justify-content: center;
     flex-direction: column;

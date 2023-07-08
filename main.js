@@ -29,6 +29,7 @@ const app = {
         for (i of numberBtns) {
             i.addEventListener("click", (e) => {
                 if (this.showResult) this.log.unshift("");
+
                 this.updateView(e.target.value);
             });
         }
@@ -76,6 +77,8 @@ const app = {
     addOperator(value) {
         this.hasOperator = true;
         this.showResult = false;
+        this.isNeg = false;
+
         switch (value) {
             case "add":
                 this.updateView(" + ");
@@ -108,19 +111,24 @@ const app = {
         this.updateInput();
 
         switch (true) {
+            case this.showResult:
+                this.showResult = false;
+                this.log.unshift("");
+                this.log[0] += "-";
+                break;
+
             case this.firstNum && !this.secondNum && !this.operator: //add the sign to the first number if only the first number is inputed
-                console.log("case 1");
+                console.log("case 1: adding the sign to the first number");
                 this.log[0] = `-${this.firstNum}`;
                 break;
 
             case !!this.secondNum:
-                console.log("case 2");
-                this.log[0] = `${this.firstNum} ${this.operator} -${this.secondNum}`;
+                console.log("case 2: adding the sign to the second number");
+                this.log[0] = `${this.firstNum} ${this.operator} -${this.secondNum}`; //add the sign to the second number if it exists
                 break;
 
-            default:
+            default: //add the sign to the current calculation so the next number will have it
                 console.log("default");
-                console.log(this.secondNum);
                 this.log[0] += "-";
                 break;
         }
